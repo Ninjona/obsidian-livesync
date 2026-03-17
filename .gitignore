@@ -1,0 +1,8 @@
+.env
+*.local
+
+# Misc editor / OS noise
+.idea/
+.vscode/
+*.swp
+.DS_Store

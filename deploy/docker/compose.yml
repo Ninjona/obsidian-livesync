@@ -1,0 +1,53 @@
+name: obsidian-livesync
+
+services:
+  couchdb:
+    build:
+      context: ./couchdb
+    image: obsidian-livesync-couchdb:local
+    container_name: obsidian-livesync-couchdb
+    restart: unless-stopped
+    environment:
+      COUCHDB_USER: ${COUCHDB_USER:?set in .env}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD:?set in .env}
+      ERL_FLAGS: "-setcookie ${ERLANG_COOKIE:?set in .env}"
+    volumes:
+      - couchdb-data:/opt/couchdb/data
+    ports:
+      - "${COUCHDB_PORT:-5984}:5984"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --quiet --spider --user=$$COUCHDB_USER --password=$$COUCHDB_PASSWORD http://127.0.0.1:5984/_up || exit 1"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  couchdb-init:
+    build:
+      context: ./couchdb-init
+    image: obsidian-livesync-couchdb-init:local
+    container_name: obsidian-livesync-couchdb-init
+    restart: "no"
+    environment:
+      hostname: http://couchdb:5984
+      username: ${COUCHDB_USER:?set in .env}
+      password: ${COUCHDB_PASSWORD:?set in .env}
+      node: _local
+      JWT_ENABLED: ${JWT_ENABLED:-false}
+      JWT_ALG: ${JWT_ALG:-hmac}
+      JWT_KID: ${JWT_KID:-_default}
+      JWT_KEY: ${JWT_KEY:-}
+      JWT_USERNAME_CLAIM: ${JWT_USERNAME_CLAIM:-}
+      JWT_ROLES_CLAIM: ${JWT_ROLES_CLAIM:-}
+      JWT_CLAIMS_REQUIRED: ${JWT_CLAIMS_REQUIRED:-}
+      JWT_AUDIENCE_CHECK: ${JWT_AUDIENCE_CHECK:-}
+    depends_on:
+      couchdb:
+        condition: service_healthy
+
+volumes:
+  couchdb-data:

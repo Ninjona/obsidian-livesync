@@ -1,0 +1,59 @@
+name: Sync Upstream CouchDB Init Script
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream script
+        id: sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          UPSTREAM_URL="https://raw.githubusercontent.com/vrtmrz/obsidian-livesync/main/utils/couchdb/couchdb-init.sh"
+          DEST="deploy/docker/couchdb-init/couchdb-init.sh"
+          META="deploy/docker/couchdb-init/UPSTREAM.txt"
+
+          tmp_file="$(mktemp)"
+          curl -fsSL "$UPSTREAM_URL" -o "$tmp_file"
+
+          if cmp -s "$tmp_file" "$DEST"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          cp "$tmp_file" "$DEST"
+          chmod +x "$DEST"
+
+          commit_sha="$(curl -fsSL "https://api.github.com/repos/vrtmrz/obsidian-livesync/commits/main" | jq -r '.sha')"
+          {
+            echo "source_url=$UPSTREAM_URL"
+            echo "source_ref=main"
+            echo "last_synced=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "source_commit_sha=$commit_sha"
+          } > "$META"
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.sync.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deploy/docker/couchdb-init/couchdb-init.sh deploy/docker/couchdb-init/UPSTREAM.txt
+          git commit -m "chore(docker): sync upstream couchdb-init.sh"
+          git push

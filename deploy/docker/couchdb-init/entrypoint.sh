@@ -1,0 +1,57 @@
+#!/bin/bash
+set -euo pipefail
+
+# Run the upstream script first so baseline LiveSync config stays aligned.
+bash /usr/local/bin/couchdb-init.sh
+
+# Optional JWT setup for CouchDB auth. No-op unless explicitly enabled.
+if [[ "${JWT_ENABLED:-false}" != "true" ]]; then
+  echo "INFO: JWT support disabled (set JWT_ENABLED=true to enable)"
+  exit 0
+fi
+
+if [[ -z "${hostname:-}" || -z "${username:-}" || -z "${password:-}" ]]; then
+  echo "ERROR: hostname/username/password must be set for JWT setup"
+  exit 1
+fi
+
+node="${node:-_local}"
+jwt_alg="${JWT_ALG:-hmac}"
+jwt_kid="${JWT_KID:-_default}"
+jwt_key="${JWT_KEY:-}"
+
+if [[ -z "$jwt_key" ]]; then
+  echo "ERROR: JWT_ENABLED=true requires JWT_KEY"
+  exit 1
+fi
+
+if [[ "$jwt_alg" != "hmac" && "$jwt_alg" != "rsa" && "$jwt_alg" != "ec" ]]; then
+  echo "ERROR: JWT_ALG must be one of: hmac, rsa, ec"
+  exit 1
+fi
+
+echo "-- Configuring optional JWT auth... -->"
+
+auth_handlers='{chttpd_auth, cookie_authentication_handler}, {chttpd_auth, jwt_authentication_handler}, {chttpd_auth, default_authentication_handler}'
+until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/chttpd/authentication_handlers" -H "Content-Type: application/json" -d "\"${auth_handlers}\"" --user "${username}:${password}"); do sleep 5; done
+
+key_config_path="${jwt_alg}:${jwt_kid}"
+until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_keys/${key_config_path}" -H "Content-Type: application/json" -d "\"${jwt_key}\"" --user "${username}:${password}"); do sleep 5; done
+
+if [[ -n "${JWT_USERNAME_CLAIM:-}" ]]; then
+  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/username_claim_path" -H "Content-Type: application/json" -d "\"${JWT_USERNAME_CLAIM}\"" --user "${username}:${password}"); do sleep 5; done
+fi
+
+if [[ -n "${JWT_ROLES_CLAIM:-}" ]]; then
+  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/roles_claim_path" -H "Content-Type: application/json" -d "\"${JWT_ROLES_CLAIM}\"" --user "${username}:${password}"); do sleep 5; done
+fi
+
+if [[ -n "${JWT_CLAIMS_REQUIRED:-}" ]]; then
+  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/required_claims" -H "Content-Type: application/json" -d "\"${JWT_CLAIMS_REQUIRED}\"" --user "${username}:${password}"); do sleep 5; done
+fi
+
+if [[ -n "${JWT_AUDIENCE_CHECK:-}" ]]; then
+  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/audience" -H "Content-Type: application/json" -d "\"${JWT_AUDIENCE_CHECK}\"" --user "${username}:${password}"); do sleep 5; done
+fi
+
+echo "<-- Configuring optional JWT auth Done!"

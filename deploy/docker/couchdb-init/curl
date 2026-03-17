@@ -1,0 +1,3 @@
+#!/bin/sh
+# Enforce HTTP failure as non-zero exit for all calls made by upstream init script.
+exec /usr/bin/curl --fail-with-body "$@"

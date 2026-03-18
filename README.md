@@ -27,8 +27,6 @@ This repository provides a ready-to-deploy, production-oriented Docker stack for
    docker compose -f docker-compose.yml up -d
    ```
 
-   If you publish images under a different Docker Hub namespace, set `IMAGE_NAMESPACE` in your `.env`.
-
    - CouchDB will be available at http://localhost:5984
    - Data is persisted in a Docker volume
 

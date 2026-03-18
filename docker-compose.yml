@@ -12,7 +12,11 @@ services:
     ports:
       - "${COUCHDB_PORT:-5984}:5984"
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS --user=$$COUCHDB_USER:$$COUCHDB_PASSWORD http://127.0.0.1:5984/_up >/dev/null || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "if command -v curl >/dev/null 2>&1; then curl -fsS --user=$$COUCHDB_USER:$$COUCHDB_PASSWORD http://127.0.0.1:5984/_up >/dev/null; elif command -v wget >/dev/null 2>&1; then wget --quiet --spider --user=$$COUCHDB_USER --password=$$COUCHDB_PASSWORD http://127.0.0.1:5984/_up; else exit 1; fi",
+        ]
       interval: 30s
       timeout: 5s
       retries: 10

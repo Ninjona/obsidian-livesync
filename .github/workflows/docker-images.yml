@@ -5,11 +5,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - deploy/docker/couchdb/**
-      - deploy/docker/couchdb-init/**
-      - deploy/docker/backup/**
-      - .github/workflows/docker-images.yml
 
 permissions:
   contents: read

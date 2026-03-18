@@ -15,7 +15,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "if command -v curl >/dev/null 2>&1; then curl -fsS -u $$COUCHDB_USER:$$COUCHDB_PASSWORD http://127.0.0.1:5984/_up >/dev/null; elif command -v wget >/dev/null 2>&1; then wget --quiet --spider --user=$$COUCHDB_USER --password=$$COUCHDB_PASSWORD http://127.0.0.1:5984/_up; else exit 1; fi",
+          'if ! command -v curl >/dev/null 2>&1; then exit 1; fi; code=$$(curl -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:5984/_up); [ "$$code" = "200" ] || [ "$$code" = "401" ]',
         ]
       interval: 30s
       timeout: 5s

@@ -8,6 +8,7 @@ on:
     paths:
       - deploy/docker/couchdb/**
       - deploy/docker/couchdb-init/**
+      - deploy/docker/backup/**
       - .github/workflows/docker-images.yml
 
 permissions:
@@ -57,3 +58,12 @@ jobs:
           tags: |
             ghcr.io/${{ env.GHCR_OWNER }}/obsidian-livesync-couchdb-init:latest
             ghcr.io/${{ env.GHCR_OWNER }}/obsidian-livesync-couchdb-init:${{ env.IMAGE_SHA }}
+
+      - name: Build and push backup image
+        uses: docker/build-push-action@v6
+        with:
+          context: deploy/docker/backup
+          push: true
+          tags: |
+            ghcr.io/${{ env.GHCR_OWNER }}/obsidian-livesync-couchdb-backup:latest
+            ghcr.io/${{ env.GHCR_OWNER }}/obsidian-livesync-couchdb-backup:${{ env.IMAGE_SHA }}

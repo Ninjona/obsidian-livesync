@@ -15,7 +15,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          'if command -v curl >/dev/null 2>&1; then code=$$(curl -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:5984/_up); [ "$$code" = "200" ] || [ "$$code" = "401" ]; elif command -v wget >/dev/null 2>&1; then wget -q --server-response --spider http://127.0.0.1:5984/_up 2>&1 | grep -Eq "HTTP/[0-9.]+ (200|401)"; else exit 1; fi',
+          'if command -v curl >/dev/null 2>&1; then code=$$(curl -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:5984/_up); [ "$$code" = "200" ] || [ "$$code" = "401" ]; elif command -v wget >/dev/null 2>&1; then wget --server-response --spider http://127.0.0.1:5984/_up 2>&1 | grep -Eq "HTTP/[0-9.]+ (200|401)"; else exit 1; fi',
         ]
       interval: 30s
       timeout: 5s
@@ -60,6 +60,12 @@ services:
       JWT_ROLES_CLAIM: ${JWT_ROLES_CLAIM:-}
       JWT_CLAIMS_REQUIRED: ${JWT_CLAIMS_REQUIRED:-}
       JWT_AUDIENCE_CHECK: ${JWT_AUDIENCE_CHECK:-}
+      SETUP_URI_ENABLED: ${SETUP_URI_ENABLED:-true}
+      SETUP_URI_HOSTNAME: ${SETUP_URI_HOSTNAME:-}
+      SETUP_URI_PORT: ${COUCHDB_PORT:-5984}
+      SETUP_URI_DATABASE: ${SETUP_URI_DATABASE:-obsidiannotes}
+      SETUP_URI_LIVESYNC_PASSPHRASE: ${SETUP_URI_LIVESYNC_PASSPHRASE:-}
+      SETUP_URI_URI_PASSPHRASE: ${SETUP_URI_URI_PASSPHRASE:-}
     depends_on:
       couchdb:
         condition: service_healthy

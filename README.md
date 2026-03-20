@@ -29,6 +29,16 @@ This repository provides a ready-to-deploy, production-oriented Docker stack for
 
    - CouchDB will be available at http://localhost:5984
    - Data is persisted in a Docker volume
+   - `couchdb-init` now prints a ready-to-import LiveSync Setup URI to container logs
+
+   ```bash
+   docker logs obsidian-livesync-couchdb-init
+   ```
+
+   Look for:
+   - `SETUP_URI_PASSPHRASE=...`
+   - `LIVESYNC_PASSPHRASE=...`
+   - `obsidian://setuplivesync?settings=...`
 
 3. (Optional) Enable HTTPS and domain proxying:
 
@@ -62,6 +72,22 @@ JWT_ROLES_CLAIM=roles
 JWT_CLAIMS_REQUIRED=exp,iat
 JWT_AUDIENCE_CHECK=obsidian-livesync
 ```
+
+## Setup URI Defaults
+
+The stack generates and prints a Setup URI by default from `couchdb-init`.
+
+```dotenv
+SETUP_URI_ENABLED=true
+SETUP_URI_HOSTNAME=
+SETUP_URI_DATABASE=obsidiannotes
+SETUP_URI_LIVESYNC_PASSPHRASE=
+SETUP_URI_URI_PASSPHRASE=
+```
+
+- Leave the passphrase overrides empty to auto-generate fresh values.
+- Leave `SETUP_URI_HOSTNAME` empty to auto-use `http://localhost:${COUCHDB_PORT}`.
+- For remote clients, set `SETUP_URI_HOSTNAME` to your public HTTPS URL.
 
 ## Security
 

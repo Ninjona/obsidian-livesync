@@ -4,6 +4,20 @@ set -euo pipefail
 # Run the upstream script first so baseline LiveSync config stays aligned.
 bash /usr/local/bin/couchdb-init.sh
 
+# Generate setup URI by default so users can copy it from container logs.
+if [[ "${SETUP_URI_ENABLED:-true}" == "true" ]]; then
+  if [[ -z "${SETUP_URI_HOSTNAME:-}" ]]; then
+    export SETUP_URI_HOSTNAME="http://localhost:${SETUP_URI_PORT:-5984}"
+  fi
+  if [[ -z "${SETUP_URI_DATABASE:-}" ]]; then
+    echo "ERROR: SETUP_URI_ENABLED=true requires SETUP_URI_DATABASE"
+    exit 1
+  fi
+  node /opt/setupuri/generate-setupuri.mjs
+else
+  echo "INFO: Setup URI generation disabled (set SETUP_URI_ENABLED=true to enable)"
+fi
+
 # Optional JWT setup for CouchDB auth. No-op unless explicitly enabled.
 if [[ "${JWT_ENABLED:-false}" != "true" ]]; then
   echo "INFO: JWT support disabled (set JWT_ENABLED=true to enable)"

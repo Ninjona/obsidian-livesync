@@ -1,5 +1,6 @@
 .env
 *.local
+.local-test/
 
 # Misc editor / OS noise
 .idea/

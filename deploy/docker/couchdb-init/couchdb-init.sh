@@ -29,5 +29,7 @@ until (curl -X PUT "${hostname}/_node/${node}/_config/chttpd/max_http_request_si
 until (curl -X PUT "${hostname}/_node/${node}/_config/couchdb/max_document_size" -H "Content-Type: application/json" -d '"50000000"' --user "${username}:${password}"); do sleep 5; done
 until (curl -X PUT "${hostname}/_node/${node}/_config/cors/credentials" -H "Content-Type: application/json" -d '"true"' --user "${username}:${password}"); do sleep 5; done
 until (curl -X PUT "${hostname}/_node/${node}/_config/cors/origins" -H "Content-Type: application/json" -d '"app://obsidian.md,capacitor://localhost,http://localhost"' --user "${username}:${password}"); do sleep 5; done
+until (curl -X PUT "${hostname}/_node/${node}/_config/cors/methods" -H "Content-Type: application/json" -d '"GET, PUT, POST, HEAD, DELETE, OPTIONS"' --user "${username}:${password}"); do sleep 5; done
+until (curl -X PUT "${hostname}/_node/${node}/_config/cors/headers" -H "Content-Type: application/json" -d '"accept, authorization, content-type, origin, referer, x-requested-with"' --user "${username}:${password}"); do sleep 5; done
 
 echo "<-- Configuring CouchDB by REST APIs Done!"

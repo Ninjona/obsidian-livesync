@@ -1,3 +1,4 @@
 source_url=https://raw.githubusercontent.com/vrtmrz/obsidian-livesync/main/utils/couchdb/couchdb-init.sh
 source_ref=main
-last_synced=manual
+last_synced=2026-03-21T06:30:40Z
+source_commit_sha=2ff60dd5ac3fccc76ae35af03fc1b167451c43dc

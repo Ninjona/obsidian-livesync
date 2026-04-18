@@ -68,7 +68,6 @@ if [[ -n "${USERS:-}" ]]; then
 
     if [[ "$user_created" == "true" || "$db_created" == "true" ]]; then
       echo "-- Setting up user: ${u_name} with database: ${u_db} -->"
-      # Generate setup URI for new user
       if [[ "${SETUP_URI_ENABLED:-true}" == "true" ]]; then
         SETUP_URI_USER="$u_name" \
         SETUP_URI_PASS="$u_pass" \
@@ -76,6 +75,12 @@ if [[ -n "${USERS:-}" ]]; then
         node /opt/setupuri/generate-setupuri.mjs
       fi
       echo "<-- User ${u_name} setup complete!"
+    elif [[ "${FORCE_SETUP_URI:-false}" == "true" && "${SETUP_URI_ENABLED:-true}" == "true" ]]; then
+      echo "User ${u_name} already exists with database ${u_db} (OK)"
+      SETUP_URI_USER="$u_name" \
+      SETUP_URI_PASS="$u_pass" \
+      SETUP_URI_DATABASE="$u_db" \
+      node /opt/setupuri/generate-setupuri.mjs
     else
       echo "User ${u_name} already exists with database ${u_db} (OK)"
     fi

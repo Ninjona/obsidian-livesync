@@ -66,6 +66,7 @@ services:
       SETUP_URI_DATABASE: ${SETUP_URI_DATABASE:-obsidiannotes}
       SETUP_URI_PASSPHRASE: ${SETUP_URI_PASSPHRASE:-}
       USERS: ${USERS:-}
+      FORCE_SETUP_URI: ${FORCE_SETUP_URI:-false}
     depends_on:
       couchdb:
         condition: service_healthy

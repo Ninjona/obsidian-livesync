@@ -39,19 +39,19 @@ if [[ -n "${USERS:-}" ]]; then
     echo "-- Setting up user: ${u_name} with database: ${u_db} -->"
 
     # Create CouchDB user
-    curl -fsS -X PUT "${admin_url}/_users/org.couchdb.user:${u_name}" \
+    curl -sS -X PUT "${admin_url}/_users/org.couchdb.user:${u_name}" \
       --user "${admin_user}:${admin_pass}" \
       -H "Content-Type: application/json" \
       -d "{\"name\":\"${u_name}\",\"password\":\"${u_pass}\",\"type\":\"user\",\"roles\":[]}" \
       2>&1 || true
 
     # Create database
-    curl -fsS -X PUT "${admin_url}/${u_db}" \
+    curl -sS -X PUT "${admin_url}/${u_db}" \
       --user "${admin_user}:${admin_pass}" \
       2>&1 || true
 
     # Lock database to this user only (admins always have access)
-    curl -fsS -X PUT "${admin_url}/${u_db}/_security" \
+    curl -sS -X PUT "${admin_url}/${u_db}/_security" \
       --user "${admin_user}:${admin_pass}" \
       -H "Content-Type: application/json" \
       -d "{\"admins\":{\"names\":[],\"roles\":[]},\"members\":{\"names\":[\"${u_name}\"],\"roles\":[]}}"
@@ -97,25 +97,25 @@ fi
 echo "-- Configuring optional JWT auth... -->"
 
 auth_handlers='{chttpd_auth, cookie_authentication_handler}, {chttpd_auth, jwt_authentication_handler}, {chttpd_auth, default_authentication_handler}'
-until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/chttpd/authentication_handlers" -H "Content-Type: application/json" -d "\"${auth_handlers}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
+until (curl -sS -X PUT "${hostname}/_node/${node}/_config/chttpd/authentication_handlers" -H "Content-Type: application/json" -d "\"${auth_handlers}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
 
 key_config_path="${jwt_alg}:${jwt_kid}"
-until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_keys/${key_config_path}" -H "Content-Type: application/json" -d "\"${jwt_key}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
+until (curl -sS -X PUT "${hostname}/_node/${node}/_config/jwt_keys/${key_config_path}" -H "Content-Type: application/json" -d "\"${jwt_key}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
 
 if [[ -n "${JWT_USERNAME_CLAIM:-}" ]]; then
-  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/username_claim_path" -H "Content-Type: application/json" -d "\"${JWT_USERNAME_CLAIM}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
+  until (curl -sS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/username_claim_path" -H "Content-Type: application/json" -d "\"${JWT_USERNAME_CLAIM}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
 fi
 
 if [[ -n "${JWT_ROLES_CLAIM:-}" ]]; then
-  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/roles_claim_path" -H "Content-Type: application/json" -d "\"${JWT_ROLES_CLAIM}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
+  until (curl -sS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/roles_claim_path" -H "Content-Type: application/json" -d "\"${JWT_ROLES_CLAIM}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
 fi
 
 if [[ -n "${JWT_CLAIMS_REQUIRED:-}" ]]; then
-  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/required_claims" -H "Content-Type: application/json" -d "\"${JWT_CLAIMS_REQUIRED}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
+  until (curl -sS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/required_claims" -H "Content-Type: application/json" -d "\"${JWT_CLAIMS_REQUIRED}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
 fi
 
 if [[ -n "${JWT_AUDIENCE_CHECK:-}" ]]; then
-  until (curl -fsS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/audience" -H "Content-Type: application/json" -d "\"${JWT_AUDIENCE_CHECK}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
+  until (curl -sS -X PUT "${hostname}/_node/${node}/_config/jwt_auth/audience" -H "Content-Type: application/json" -d "\"${JWT_AUDIENCE_CHECK}\"" --user "${admin_username}:${admin_password}"); do sleep 5; done
 fi
 
 echo "<-- Configuring optional JWT auth Done!"

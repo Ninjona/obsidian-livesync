@@ -6,10 +6,6 @@ function randomUriPassphrase() {
   return randomBytes(24).toString("base64url");
 }
 
-function randomLivesyncPassphrase() {
-  return randomBytes(18).toString("base64url");
-}
-
 function required(name) {
   const value = process.env[name];
   if (!value) {
@@ -24,8 +20,7 @@ async function main() {
   const username = process.env.SETUP_URI_USER || required("admin_username");
   const password = process.env.SETUP_URI_PASS || required("admin_password");
 
-  const livesyncPassphrase = process.env.SETUP_URI_LIVESYNC_PASSPHRASE || randomLivesyncPassphrase();
-  const uriPassphrase = process.env.SETUP_URI_URI_PASSPHRASE || randomUriPassphrase();
+  const uriPassphrase = process.env.SETUP_URI_PASSPHRASE || randomUriPassphrase();
 
   const config = {
     couchDB_URI: couchdbUri,
@@ -36,8 +31,6 @@ async function main() {
     gcDelay: 0,
     periodicReplication: true,
     syncOnFileOpen: true,
-    encrypt: true,
-    passphrase: livesyncPassphrase,
     usePathObfuscation: true,
     batchSave: true,
     batch_size: 50,
@@ -61,7 +54,6 @@ async function main() {
   console.log(`SETUP_URI_HOSTNAME=${couchdbUri}`);
   console.log(`SETUP_URI_DATABASE=${database}`);
   console.log(`SETUP_URI_PASSPHRASE=${uriPassphrase}`);
-  console.log(`LIVESYNC_PASSPHRASE=${livesyncPassphrase}`);
   console.log(setupUri);
   console.log("<-- Generated Obsidian LiveSync Setup URI");
 }

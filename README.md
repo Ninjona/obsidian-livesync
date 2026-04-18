@@ -37,7 +37,6 @@ This repository provides a ready-to-deploy, production-oriented Docker stack for
 
    Look for:
    - `SETUP_URI_PASSPHRASE=...`
-   - `LIVESYNC_PASSPHRASE=...`
    - `obsidian://setuplivesync?settings=...`
 
 3. (Optional) Enable HTTPS and domain proxying:
@@ -81,11 +80,10 @@ The stack generates and prints a Setup URI by default from `couchdb-init`.
 SETUP_URI_ENABLED=true
 SETUP_URI_HOSTNAME=
 SETUP_URI_DATABASE=obsidiannotes
-SETUP_URI_LIVESYNC_PASSPHRASE=
-SETUP_URI_URI_PASSPHRASE=
+SETUP_URI_PASSPHRASE=
 ```
 
-- Leave the passphrase overrides empty to auto-generate fresh values.
+- Leave the passphrase empty to auto-generate a fresh value.
 - Leave `SETUP_URI_HOSTNAME` empty to auto-use `http://localhost:${COUCHDB_PORT}`.
 - For remote clients, set `SETUP_URI_HOSTNAME` to your public HTTPS URL.
 

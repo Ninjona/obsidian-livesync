@@ -36,35 +36,49 @@ if [[ -n "${USERS:-}" ]]; then
       continue
     fi
 
-    echo "-- Setting up user: ${u_name} with database: ${u_db} -->"
+    user_created=false
+    db_created=false
 
     # Create CouchDB user
-    curl -sS -X PUT "${admin_url}/_users/org.couchdb.user:${u_name}" \
+    user_http_code=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT \
+      "${admin_url}/_users/org.couchdb.user:${u_name}" \
       --user "${admin_user}:${admin_pass}" \
       -H "Content-Type: application/json" \
       -d "{\"name\":\"${u_name}\",\"password\":\"${u_pass}\",\"type\":\"user\",\"roles\":[]}" \
-      2>&1 || true
+      2>/dev/null) || true
+    if [[ "$user_http_code" == "201" ]]; then
+      user_created=true
+    fi
 
     # Create database
-    curl -sS -X PUT "${admin_url}/${u_db}" \
+    db_http_code=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT \
+      "${admin_url}/${u_db}" \
       --user "${admin_user}:${admin_pass}" \
-      2>&1 || true
+      2>/dev/null) || true
+    if [[ "$db_http_code" == "201" ]]; then
+      db_created=true
+    fi
 
     # Lock database to this user only (admins always have access)
     curl -sS -X PUT "${admin_url}/${u_db}/_security" \
       --user "${admin_user}:${admin_pass}" \
       -H "Content-Type: application/json" \
-      -d "{\"admins\":{\"names\":[],\"roles\":[]},\"members\":{\"names\":[\"${u_name}\"],\"roles\":[]}}"
+      -d "{\"admins\":{\"names\":[],\"roles\":[]},\"members\":{\"names\":[\"${u_name}\"],\"roles\":[]}}" \
+      >/dev/null 2>&1
 
-    # Generate setup URI for this user
-    if [[ "${SETUP_URI_ENABLED:-true}" == "true" ]]; then
-      SETUP_URI_USER="$u_name" \
-      SETUP_URI_PASS="$u_pass" \
-      SETUP_URI_DATABASE="$u_db" \
-      node /opt/setupuri/generate-setupuri.mjs
+    if [[ "$user_created" == "true" || "$db_created" == "true" ]]; then
+      echo "-- Setting up user: ${u_name} with database: ${u_db} -->"
+      # Generate setup URI for new user
+      if [[ "${SETUP_URI_ENABLED:-true}" == "true" ]]; then
+        SETUP_URI_USER="$u_name" \
+        SETUP_URI_PASS="$u_pass" \
+        SETUP_URI_DATABASE="$u_db" \
+        node /opt/setupuri/generate-setupuri.mjs
+      fi
+      echo "<-- User ${u_name} setup complete!"
+    else
+      echo "User ${u_name} already exists with database ${u_db} (OK)"
     fi
-
-    echo "<-- User ${u_name} setup complete!"
   done
 fi
 

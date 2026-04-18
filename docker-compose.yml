@@ -60,12 +60,11 @@ services:
       JWT_ROLES_CLAIM: ${JWT_ROLES_CLAIM:-}
       JWT_CLAIMS_REQUIRED: ${JWT_CLAIMS_REQUIRED:-}
       JWT_AUDIENCE_CHECK: ${JWT_AUDIENCE_CHECK:-}
-      SETUP_URI_ENABLED: ${SETUP_URI_ENABLED:-true}
+      SETUP_URI: ${SETUP_URI:-true}
       SETUP_URI_HOSTNAME: ${SETUP_URI_HOSTNAME:-}
       SETUP_URI_PORT: ${COUCHDB_PORT:-5984}
       SETUP_URI_PASSPHRASE: ${SETUP_URI_PASSPHRASE:-}
       USERS: ${USERS:-}
-      FORCE_SETUP_URI: ${FORCE_SETUP_URI:-false}
     depends_on:
       couchdb:
         condition: service_healthy

@@ -77,17 +77,17 @@ JWT_AUDIENCE_CHECK=obsidian-livesync
 The stack generates a Setup URI for each user defined in `USERS`. These are printed to `couchdb-init` container logs.
 
 ```dotenv
-SETUP_URI_ENABLED=true
+SETUP_URI=true
 SETUP_URI_HOSTNAME=
 SETUP_URI_PASSPHRASE=
 USERS=obsidian:adminpass:obsidiannotes;alice:secret123:vault-alice
 ```
 
+- `SETUP_URI=true` generates URIs for new users only, `always` regenerates on every restart, `false` disables.
 - Each user entry is `user:password:database`, separated by semicolons.
 - Leave `SETUP_URI_PASSPHRASE` empty to auto-generate a fresh value.
 - Leave `SETUP_URI_HOSTNAME` empty to auto-use `http://localhost:${COUCHDB_PORT}`.
 - For remote clients, set `SETUP_URI_HOSTNAME` to your public HTTPS URL.
-- Set `FORCE_SETUP_URI=true` to regenerate URIs for existing users on restart.
 
 ## Security
 

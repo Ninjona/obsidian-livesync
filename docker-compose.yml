@@ -49,8 +49,8 @@ services:
     restart: "no"
     environment:
       hostname: http://couchdb:5984
-      username: ${COUCHDB_USER:?set in .env}
-      password: ${COUCHDB_PASSWORD:?set in .env}
+      admin_username: ${COUCHDB_USER:?set in .env}
+      admin_password: ${COUCHDB_PASSWORD:?set in .env}
       node: _local
       JWT_ENABLED: ${JWT_ENABLED:-false}
       JWT_ALG: ${JWT_ALG:-hmac}
@@ -66,6 +66,7 @@ services:
       SETUP_URI_DATABASE: ${SETUP_URI_DATABASE:-obsidiannotes}
       SETUP_URI_LIVESYNC_PASSPHRASE: ${SETUP_URI_LIVESYNC_PASSPHRASE:-}
       SETUP_URI_URI_PASSPHRASE: ${SETUP_URI_URI_PASSPHRASE:-}
+      USERS: ${USERS:-}
     depends_on:
       couchdb:
         condition: service_healthy

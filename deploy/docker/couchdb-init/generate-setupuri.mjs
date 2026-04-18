@@ -21,8 +21,8 @@ function required(name) {
 async function main() {
   const couchdbUri = required("SETUP_URI_HOSTNAME");
   const database = required("SETUP_URI_DATABASE");
-  const username = required("username");
-  const password = required("password");
+  const username = process.env.SETUP_URI_USER || required("admin_username");
+  const password = process.env.SETUP_URI_PASS || required("admin_password");
 
   const livesyncPassphrase = process.env.SETUP_URI_LIVESYNC_PASSPHRASE || randomLivesyncPassphrase();
   const uriPassphrase = process.env.SETUP_URI_URI_PASSPHRASE || randomUriPassphrase();

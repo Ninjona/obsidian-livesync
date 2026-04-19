@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# Load env snapshot written by cron-entrypoint.sh (cron jobs don't inherit
+# container env). Harmless when invoked manually — values match what's already set.
+[ -f /etc/backup.env ] && . /etc/backup.env
+
 # Configuration
 db_url="${COUCHDB_URL:-http://couchdb:5984}"
 db_user="${COUCHDB_USER:-admin}"

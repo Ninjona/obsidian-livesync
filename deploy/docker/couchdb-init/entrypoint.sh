@@ -2,7 +2,10 @@
 set -euo pipefail
 
 # Run the upstream script first so baseline LiveSync config stays aligned.
-bash /usr/local/bin/couchdb-init.sh
+# Upstream uses `username`/`password`; we keep `admin_username`/`admin_password`
+# internally to distinguish from per-user creds in USERS. Translate for the call.
+username="${admin_username:?}" password="${admin_password:?}" \
+  bash /usr/local/bin/couchdb-init.sh
 
 # Set up setup URI hostname for later use
 if [[ -z "${SETUP_URI_HOSTNAME:-}" ]]; then

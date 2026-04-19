@@ -6,10 +6,8 @@ RUN apt-get update && \
 
 COPY backup.sh /usr/local/bin/backup.sh
 COPY restore.sh /usr/local/bin/restore.sh
-COPY backup-cron /etc/backup-cron
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 RUN chmod +x /usr/local/bin/backup.sh /usr/local/bin/restore.sh /cron-entrypoint.sh && \
-    touch /var/log/cron.log && \
-    crontab /etc/backup-cron
+    touch /var/log/cron.log
 
 ENTRYPOINT ["/cron-entrypoint.sh"]

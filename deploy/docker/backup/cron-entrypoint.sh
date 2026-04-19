@@ -12,6 +12,14 @@ set -euo pipefail
 } > /etc/backup.env
 chmod 600 /etc/backup.env
 
+# Render the crontab at runtime so BACKUP_SCHEDULE can override the default.
+schedule="${BACKUP_SCHEDULE:-0 * * * *}"
+{
+  echo "SHELL=/bin/bash"
+  echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+  echo "${schedule} /usr/local/bin/backup.sh >> /var/log/cron.log 2>&1"
+} | crontab -
+
 # Start cron in the background
 cron
 

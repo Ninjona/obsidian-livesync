@@ -1,7 +1,12 @@
-FROM couchdb:3.4
+FROM debian:bookworm-slim
 
 RUN apt-get update && \
-    apt-get install -y cron jq curl gzip && \
+    apt-get install -y --no-install-recommends \
+        cron \
+        curl \
+        jq \
+        gzip \
+        ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 COPY backup.sh /usr/local/bin/backup.sh
